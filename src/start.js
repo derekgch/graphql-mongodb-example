@@ -14,14 +14,14 @@ app.use(cors())
 const homePath = '/graphiql'
 const URL = 'http://localhost'
 const PORT = 3001
-const MONGO_URL = 'mongodb://localhost:27017/blog'
+const MONGO_URL = 'mongodb://localhost:27017'
 
 export const start = async () => {
   try {
-    const db = await MongoClient.connect(MONGO_URL)
+    const client = await MongoClient.connect(MONGO_URL, {useNewUrlParser: true})
 
-    const Posts = db.collection('posts')
-    const Comments = db.collection('comments')
+    const Posts = client.db('blog').collection('posts')
+    const Comments = client.db('blog').collection('comments')
 
     const typeDefs = [`
       type Query {
