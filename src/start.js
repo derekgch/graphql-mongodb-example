@@ -16,8 +16,6 @@ const URL = 'http://localhost'
 const PORT = 3001
 const MONGO_URL = 'mongodb://localhost:27017/blog'
 
-
-
 export const start = async () => {
   try {
     const db = await MongoClient.connect(MONGO_URL)
@@ -86,7 +84,8 @@ export const start = async () => {
         },
         createComment: async (root, args) => {
           const res = await Comments.insert(args)
-          return prepare(await Comments.findOne({_id: res.insertedIds[1]}))
+          console.log("reponse from create comment", res)
+          return prepare(await Comments.findOne({_id: res.insertedIds[0]}))
         },
       },
     }
