@@ -22,12 +22,15 @@ export const start = async () => {
 
     const Posts = client.db('blog').collection('posts')
     const Comments = client.db('blog').collection('comments')
+    Comments.createIndex({content: "text"})
 
     const typeDefs = [`
       type Query {
         post(_id: String): Post
         posts: [Post]
         comment(_id: String): Comment
+        comments(post_id: String): [Comment]
+        findComments(text: String): [Comment]
       }
 
       type Post {
@@ -66,6 +69,12 @@ export const start = async () => {
         comment: async (root, {_id}) => {
           return prepare(await Comments.findOne(ObjectId(_id)))
         },
+        comments: async (root, {post_id}) =>{
+          return (await Comments.find({postId: post_id}).toArray()).map(prepare)
+        },
+        findComments: async(root, {text}) =>{
+          return (await Comments.find({$text:{$search:text}}).toArray()).map(prepare)
+        }
       },
       Post: {
         comments: async ({_id}) => {
