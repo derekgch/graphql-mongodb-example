@@ -30,6 +30,7 @@ export const start = async () => {
         posts: [Post]
         comment(_id: String): Comment
         comments(post_id: String): [Comment]
+        allComments: [Comment]
         findComments(text: String): [Comment]
       }
 
@@ -76,6 +77,9 @@ export const start = async () => {
         comments: async (root, {post_id}) =>{
           return (await Comments.find({postId: post_id}).toArray()).map(prepare)
         },
+        allComments: async () =>{
+          return (await Comments.find({}).toArray()).map(prepare)
+        },
         findComments: async(root, {text}) =>{
           return (await Comments.find({$text:{$search:text}}).toArray()).map(prepare)
         }
@@ -121,8 +125,12 @@ export const start = async () => {
         deleteComment: async (root, {_id}) => {
           const res = await Comments.findOneAndDelete({_id: ObjectId(_id)})
           console.log("res", res)
-          return res
-          // return prepare(res)
+          return prepare(res.value)
+        },
+        deletePost: async (root, {_id}) =>{
+          const res = await Posts.findOneAndDelete({ _id: ObjectId(_id)})
+          console.log("res", res)
+          return prepare(res.value)
         }
       },
     }
