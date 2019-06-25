@@ -50,6 +50,10 @@ export const start = async () => {
       type Mutation {
         createPost(title: String, content: String): Post
         createComment(postId: String, content: String): Comment
+        modifyPost(_id: String, title: String, content: String): Post
+        modifyComment(_id: String, content: String, postId: String): Comment
+        deletePost(_id: String): Post
+        deleteComment( _id: String): Comment
       }
 
       schema {
@@ -96,6 +100,30 @@ export const start = async () => {
           console.log("reponse from create comment", res)
           return prepare(await Comments.findOne({_id: res.insertedIds[0]}))
         },
+        modifyPost: async (root, args) =>{
+          const res = await Posts.findOneAndUpdate(ObjectId(args._id), {$set: {title:args.title, content:args.content}})
+          console.log("reponse from create comment", res)
+          return prepare(await Posts.findOne(ObjectId(args._id)))
+        },
+        modifyComment: async (root, args) => {
+          try {
+            // console.log("args in modifyComment", args._id, args.content);
+            const res = await Comments.updateOne({_id: ObjectId(args._id)}, { $set : { "content": args.content , "postId":args.postId}});
+            // console.log("response", res)
+          } catch (error) {
+            console.log("error", error);
+          }
+          
+          const result = await Comments.findOne({_id: ObjectId(args._id)});
+          // console.log("args._id", args._id, "result", result);
+          return prepare(result);
+        },
+        deleteComment: async (root, {_id}) => {
+          const res = await Comments.findOneAndDelete({_id: ObjectId(_id)})
+          console.log("res", res)
+          return res
+          // return prepare(res)
+        }
       },
     }
 
